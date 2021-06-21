@@ -774,7 +774,7 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    private void enemyKiller(float[] hitBoxChecker, GL gl) {
+    private void enemyKiller(float[] hitBoxChecker, GL gl, int index) {
         boolean x1 = hitBoxChecker[0] <= playerPosition[0] && playerPosition[0] <= hitBoxChecker[1];
         boolean x2 = hitBoxChecker[0] <= playerPosition[1] && playerPosition[1] <= hitBoxChecker[1];
         boolean y1 = hitBoxChecker[2] <= playerPosition[2] && playerPosition[2] <= hitBoxChecker[3];
