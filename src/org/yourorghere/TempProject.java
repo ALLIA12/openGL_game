@@ -49,6 +49,7 @@ public class TempProject implements GLEventListener, KeyListener {
     GLU glu;
     int width = 1280;
     int height = 720;
+    boolean[] newPositioner = {false, false, false};
 
     public static void main(String[] args) {
 
@@ -126,8 +127,8 @@ public class TempProject implements GLEventListener, KeyListener {
         }
         if (level == 0) {
             hitBoxChecker = DrawEnemy(10, 3, 0, 1, enemyCPosition, gl);
-            enemyDetector(0, hitBoxChecker, gl);
-            enemyKiller(hitBoxChecker, gl);
+            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+            enemyKiller(hitBoxChecker, gl, 0);
             //playerPosition[3] -= 0.01f;
             //playerPosition[2] -= 0.01f;
         } else if (level == 1) {
@@ -631,71 +632,75 @@ public class TempProject implements GLEventListener, KeyListener {
         gl.glPushMatrix();
         gl.glTranslatef(xPos, yPos, 0);
         if (detec[index] == false) {
-            currentPosition[0] = -3 + xPos;
-            currentPosition[1] = 0 + xPos;
-            currentPosition[2] = 2 + yPos;
-            currentPosition[3] = 4 + yPos;
+            if (newPositioner[index] == false) {
+                currentPosition[0] = -3 + xPos;
+                currentPosition[1] = 0 + xPos;
+                currentPosition[2] = 2 + yPos;
+                currentPosition[3] = 4 + yPos;
+            } 
+
             gl.glBegin(GL.GL_QUADS);
             gl.glColor3f(102 / 255.0f, 153 / 255.0f, 255 / 255.0f);
-
-            // front       
-            gl.glVertex3f(0, 2, 0);
-            gl.glVertex3f(0, 4, 0);
-            gl.glVertex3f(-2, 4, 0);
-            gl.glVertex3f(-2, 2, 0);
+             
+            //front
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[2] - yPos, 0);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[3] - yPos, 0);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[3] - yPos, 0);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[2] - yPos, 0);
 
             //back 
-            gl.glVertex3f(0, 2, 1);
-            gl.glVertex3f(0, 4, 1);
-            gl.glVertex3f(-2, 4, 1);
-            gl.glVertex3f(-2, 2, 1);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[2] - yPos, 1);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[3] - yPos, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[3] - yPos, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[2] - yPos, 1);
 
             // right side 
             gl.glRotated(90, 0, 1, 0);
-            gl.glVertex3f(0, 2, 0);
-            gl.glVertex3f(0, 4, 0);
-            gl.glVertex3f(0, 4, 1);
-            gl.glVertex3f(0, 2, 1);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[2] - yPos, 0);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[3] - yPos, 0);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[3] - yPos, 1);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[2] - yPos, 1);
 
             // left side
             gl.glRotated(-180, 0, 1, 0);
-            gl.glVertex3f(-2, 2, 0);
-            gl.glVertex3f(-2, 4, 0);
-            gl.glVertex3f(-2, 4, 1);
-            gl.glVertex3f(-2, 2, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[2] - yPos, 0);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[3] - yPos, 0);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[3] - yPos, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[2] - yPos, 1);
 
             // top 
-            gl.glVertex3f(0, 4, 0);
-            gl.glVertex3f(0, 4, 1);
-            gl.glVertex3f(-2, 4, 1);
-            gl.glVertex3f(-2, 4, 0);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[3] - yPos, 0);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[3] - yPos, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[3] - yPos, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[3] - yPos, 0);
 
             // bottom 
-            gl.glVertex3f(0, 2, 0);
-            gl.glVertex3f(0, 2, 1);
-            gl.glVertex3f(-2, 2, 1);
-            gl.glVertex3f(-2, 2, 0);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[2] - yPos, 0);
+            gl.glVertex3f(currentPosition[1] - xPos, currentPosition[2] - yPos, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[2] - yPos, 1);
+            gl.glVertex3f(currentPosition[0] - xPos, currentPosition[2] - yPos, 0);
             gl.glEnd();
             gl.glPopMatrix();
             return currentPosition;
         } else {
-
-            if (currentPosition[0] != (float) ((int) (newPosition[0] * 100) / 100)) {
+            int tester = (int) (newPosition[0] * 100);
+            int tester2 = (int) (newPosition[2] * 100);
+            if (currentPosition[0] != (float) (tester / 100)) {
                 if (currentPosition[0] < newPosition[0]) {
-                    currentPosition[0] += 0.01f * speed;
-                    currentPosition[1] += 0.01f * speed;
+                    currentPosition[0] += 0.01f * speed*5;
+                    currentPosition[1] += 0.01f * speed*5;
                 } else {
-                    currentPosition[0] -= 0.01f * speed;
-                    currentPosition[1] -= 0.01f * speed;
+                    currentPosition[0] -= 0.01f * speed*5;
+                    currentPosition[1] -= 0.01f * speed*5;
                 }
             }
-            if (currentPosition[2] != (float) ((int) (newPosition[2] * 100) / 100)) {
+            if (currentPosition[2] != (float) (tester2 / 100)) {
                 if (currentPosition[2] < newPosition[2]) {
-                    currentPosition[2] += 0.01f * speed;
-                    currentPosition[3] += 0.01f * speed;
+                    currentPosition[2] += 0.01f * speed*5;
+                    currentPosition[3] += 0.01f * speed*5;
                 } else {
-                    currentPosition[2] -= 0.01f * speed;
-                    currentPosition[3] -= 0.01f * speed;
+                    currentPosition[2] -= 0.01f * speed*5;
+                    currentPosition[3] -= 0.01f * speed*5;
                 }
             }
             gl.glBegin(GL.GL_QUADS);
@@ -744,21 +749,26 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    private void enemyDetector(int index, float[] hitBoxChecker, GL gl) {
+    private void enemyDetector(int index, float[] hitBoxChecker, GL gl, float[] currentPosition) {
         boolean x1 = (hitBoxChecker[0] - 6) <= playerPosition[0] && playerPosition[0] <= hitBoxChecker[1] + 6;
         boolean x2 = (hitBoxChecker[0] - 6) <= playerPosition[1] && playerPosition[1] <= hitBoxChecker[1] + 6;
         boolean y1 = (hitBoxChecker[2] - 6) <= playerPosition[2] && playerPosition[2] <= (hitBoxChecker[3] + 6);
         boolean y2 = (hitBoxChecker[2] - 6) <= playerPosition[3] && playerPosition[3] <= (hitBoxChecker[3] + 6);
         boolean z1 = hitBoxChecker[4] <= playerPosition[4] && playerPosition[4] <= hitBoxChecker[4];
         boolean z2 = hitBoxChecker[5] <= playerPosition[5] && playerPosition[5] <= hitBoxChecker[5];
+        int tester = (int) (newPosition[0] * 100);
+        int tester2 = (int) (newPosition[2] * 100);
+        int tester3 = (int) (currentPosition[0] * 100);
+        int tester4= (int) (currentPosition[2] * 100);
         if ((x1 || x2) && (y1 || y2) && (z1 || z2) && detec[index] == false) // check for x1
         {
             newPosition[0] = playerPosition[0];
             newPosition[1] = playerPosition[1];
             newPosition[2] = playerPosition[2];
             newPosition[3] = playerPosition[3];
+            newPositioner[index] = true;
             detec[index] = true;
-        } else if (!((x1 || x2) && (y1 || y2) && (z1 || z2))) {
+        } else if (!((x1 || x2) && (y1 || y2) && (z1 || z2)) || (float) (tester3 / 100) == (float) (tester / 100) && (float) (tester4 / 100) == (float) (tester2 / 100)) {
             detec[index] = false;
 
         }
@@ -774,6 +784,7 @@ public class TempProject implements GLEventListener, KeyListener {
         if ((x1 || x2) && (y1 || y2) && (z1 || z2)) // check for x1
         {
             life--;
+            newPositioner[index] = false;
             if (life == 0) {
                 System.out.println("You died, RIP");
                 System.exit(0);
