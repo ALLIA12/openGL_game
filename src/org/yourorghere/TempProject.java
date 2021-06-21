@@ -44,8 +44,8 @@ public class TempProject implements GLEventListener, KeyListener {
     float rotate_UD = 0;// not used
     int speedModifier = 1;
     float playerPosition[] = {0, 1, 0, 1, 0, 1};
-    float bullets[][] = new float[100][6];
-    boolean[] isBulletFired = new boolean[100];
+    float bullets[][] = new float[200][6];
+    boolean[] isBulletFired = new boolean[200];
     float[] enemyCPosition = {0, 0, 0, 0, 0, 1};
     float[] enemyCPosition2 = {0, 0, 0, 0, 0, 1};
     float[] enemyCPosition3 = {0, 0, 0, 0, 0, 1};
@@ -205,8 +205,38 @@ public class TempProject implements GLEventListener, KeyListener {
             enemyKiller(hitBoxChecker, 0);
 
         } else if (level == 6) {
+            
+            // this is a joke of a level, you don't die
+            hitBoxChecker = DrawMovingObject(-5, 0, 10, 2, gl);
+
+            hitBoxChecker = DrawMovingObject(5, 0, 8, 2, gl);
+
+            hitBoxChecker = DrawMovingObject(0, 0, 5, 4, gl);
+
+            hitBoxChecker = DrawMovingObject(10, 2, 5, 2, gl);
+
+            hitBoxChecker = DrawMovingObject(15, 0, 7, 2, gl);
+
+            for (int i = 0; i < 200; i++) {
+                hitBoxChecker = DrawBullet(2, gl, i);
+            }
+
+            newPositioner[0] = false;
+            hitBoxChecker = DrawEnemy(15, 0, 0, 2, enemyCPosition, gl);
+            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+            //enemyKiller(hitBoxChecker, 0);
+
+            newPositioner[1] = false;
+            hitBoxChecker = DrawEnemy(-16, -8, 1, 2, enemyCPosition2, gl);
+            enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+
+            newPositioner[2] = false;
+            hitBoxChecker = DrawEnemy(5, 3, 2, 3, enemyCPosition3, gl);
+            enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+        } else if (level == 7) {
             level = 1;
         }
+
         // Flush all drawing operations to the graphics card
         gl.glFlush();
         // gravity 
@@ -1160,8 +1190,8 @@ public class TempProject implements GLEventListener, KeyListener {
         playerPosition[2] = 0;
         playerPosition[3] = 1;
         rotation_angle = 0;
-        bullets = new float[100][6];
-        isBulletFired = new boolean[100];
+        bullets = new float[200][6];
+        isBulletFired = new boolean[200];
 
     }
 
