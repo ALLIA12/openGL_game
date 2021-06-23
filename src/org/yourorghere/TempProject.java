@@ -108,7 +108,6 @@ public class TempProject implements GLEventListener, KeyListener {
         playerPosition[3] = 1;
         rotation_angle = 0;
         glu = new GLU();
-
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
@@ -165,10 +164,9 @@ public class TempProject implements GLEventListener, KeyListener {
             newPositioner[0] = false;
 
             // draw enemy
-            hitBoxChecker = DrawEnemy(-16, -8, 0, 1, enemyCPosition, gl);
+            hitBoxChecker = DrawEnemy(-12, -8, 0, 1, enemyCPosition, gl);
             enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
             enemyKiller(hitBoxChecker, 0);
-            newPositioner[1] = false;
 
         } else if (level == 3) {
             for (int i = 0; i < 20; i++) {
@@ -194,6 +192,11 @@ public class TempProject implements GLEventListener, KeyListener {
             enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
             enemyKiller(hitBoxChecker, 1);
 
+            newPositioner[2] = false;
+            hitBoxChecker = DrawEnemy(1, 3, 2, 2, enemyCPosition3, gl);
+            enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+            enemyKiller(hitBoxChecker, 2);
+
         } else if (level == 5) {
             for (int i = 0; i < 50; i++) {
                 hitBoxChecker = DrawBullet(2, gl, i);
@@ -205,7 +208,7 @@ public class TempProject implements GLEventListener, KeyListener {
             enemyKiller(hitBoxChecker, 0);
 
         } else if (level == 6) {
-            
+
             // this is a joke of a level, you don't die
             hitBoxChecker = DrawMovingObject(-5, 0, 10, 2, gl);
 
@@ -235,13 +238,14 @@ public class TempProject implements GLEventListener, KeyListener {
             enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
         } else if (level == 7) {
             level = 1;
+            lives = 5;
         }
 
         // Flush all drawing operations to the graphics card
         gl.glFlush();
         // gravity 
-        //playerPosition[3] -= 0.01f;
-        //playerPosition[2] -= 0.01f;
+        playerPosition[3] -= 0.01f;
+        playerPosition[2] -= 0.01f;
     }
 
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
@@ -255,11 +259,9 @@ public class TempProject implements GLEventListener, KeyListener {
         } else if (keyChar == KeyEvent.VK_D || keyChar
                 == 'd') {
             rotation_angle += .5f;
-
         } else if (keyChar == KeyEvent.VK_A || keyChar
                 == 'a') {
             rotation_angle -= .5f;
-
         } else if (keyChar == KeyEvent.VK_W || keyChar
                 == 'w') {
             playerPosition[0] += 0.1f * speedModifier * Math.sin(rotation_angle);
@@ -287,24 +289,26 @@ public class TempProject implements GLEventListener, KeyListener {
             playerPosition[1] = -17;
             playerPosition[2] = 0;
             playerPosition[3] = 1;
+        } else if (keyChar == KeyEvent.VK_G || keyChar == 'g') {
+            lives = 99999999;
         } else if (keyChar
                 == '2') {
-            cam_UD++;
+            cam_UD += 0.1;
         } else if (keyChar
                 == '8') {
-            cam_UD--;
+            cam_UD -= 0.1;
         } else if (keyChar
                 == '4') {
-            cam_LR++;
+            cam_LR += 0.1;
         } else if (keyChar
                 == '6') {
-            cam_LR--;
+            cam_LR -= 0.1;
         } else if (keyChar
                 == '9') {
-            cam_zoom_IO++;
+            cam_zoom_IO += 0.1;
         } else if (keyChar
                 == '7') {
-            cam_zoom_IO--;
+            cam_zoom_IO -= 0.1;
         } else if (keyChar
                 == '5') {
             cam_zoom_IO = 0;
@@ -673,8 +677,7 @@ public class TempProject implements GLEventListener, KeyListener {
         gl.glRotated(rotation_angle * 122, 0, 0, 1);
         gl.glTranslated(-(playerPosition[0] + ((playerPosition[1] - playerPosition[0]) / 2)), -(playerPosition[2] + ((playerPosition[3] - playerPosition[2]) / 2)), 0);
         gl.glBegin(GL.GL_QUADS);
-        gl.glColor3f(1, 1, 1);
-
+        gl.glColor3f(0, 1, 0);
         // FRONT
         gl.glVertex3d(playerPosition[0], playerPosition[2], 0);
         gl.glVertex3d(playerPosition[1], playerPosition[2], 0);
@@ -1111,6 +1114,8 @@ public class TempProject implements GLEventListener, KeyListener {
                 } catch (InterruptedException ex) {
                 }
                 System.exit(0);
+            } else {
+                playMusic("bleep.wav");
             }
             System.out.println("You have this many lifes remanining: " + lives);
             resetEverything();
