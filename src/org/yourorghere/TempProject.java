@@ -198,7 +198,7 @@ public class TempProject implements GLEventListener, KeyListener {
             enemyKiller(hitBoxChecker, 2);
 
         } else if (level == 5) {
-            for (int i = 0; i < 50; i++) {
+            for (int i = 0; i < 40; i++) {
                 hitBoxChecker = DrawBullet(2, gl, i);
                 onCollisionResetBullet(hitBoxChecker);
             }
