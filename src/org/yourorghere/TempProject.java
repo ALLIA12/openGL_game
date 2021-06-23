@@ -163,10 +163,9 @@ public class TempProject implements GLEventListener, KeyListener {
             hitBoxChecker = DrawMovingObject(9, 0, 2, 2, gl);
             onCollisionReset(hitBoxChecker);
 
-            newPositioner[0] = false;
 
             // draw enemy
-            hitBoxChecker = DrawEnemy(-12, -8, 0, 1, enemyCPosition, gl);
+            hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
             enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
             enemyKiller(hitBoxChecker, 0);
         } else if (level == 3) {
@@ -183,17 +182,14 @@ public class TempProject implements GLEventListener, KeyListener {
             hitBoxChecker = DrawMovingObject(10, 0, 10, 2, gl);
             onCollisionReset(hitBoxChecker);
 
-            newPositioner[0] = false;
-            hitBoxChecker = DrawEnemy(-16, -8, 0, 2, enemyCPosition, gl);
+            hitBoxChecker = DrawEnemy(-5, -8, 0, 2, enemyCPosition, gl);
             enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
             enemyKiller(hitBoxChecker, 0);
 
-            newPositioner[1] = false;
             hitBoxChecker = DrawEnemy(1, -3, 1, 2, enemyCPosition2, gl);
             enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
             enemyKiller(hitBoxChecker, 1);
 
-            newPositioner[2] = false;
             hitBoxChecker = DrawEnemy(1, 3, 2, 2, enemyCPosition3, gl);
             enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
             enemyKiller(hitBoxChecker, 2);
@@ -204,12 +200,27 @@ public class TempProject implements GLEventListener, KeyListener {
                 hitBoxChecker = DrawBullet(2, gl, i);
                 onCollisionResetBullet(hitBoxChecker);
             }
-            newPositioner[0] = false;
-            hitBoxChecker = DrawEnemy(-16, -8, 0, 1, enemyCPosition, gl);
+            
+            hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
             enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
             enemyKiller(hitBoxChecker, 0);
 
         } else if (level == 6) {
+            hitBoxChecker = DrawEnemy(-5, -7, 0, 1, enemyCPosition, gl);
+            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+            enemyKiller(hitBoxChecker, 0);
+            
+            hitBoxChecker = DrawEnemy(0, 4, 1, 2, enemyCPosition2, gl);
+            enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+            enemyKiller(hitBoxChecker, 1);
+            
+            hitBoxChecker = DrawEnemy(10, -2, 2, 3, enemyCPosition3, gl);
+            enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+            enemyKiller(hitBoxChecker, 2);
+            
+            
+
+        }else if (level == 7) {
 
             // this is a joke of a level, you don't die
             hitBoxChecker = DrawMovingObject(-5, 0, 10, 2, gl);
@@ -226,19 +237,16 @@ public class TempProject implements GLEventListener, KeyListener {
                 hitBoxChecker = DrawBullet(2, gl, i);
             }
 
-            newPositioner[0] = false;
             hitBoxChecker = DrawEnemy(15, 0, 0, 2, enemyCPosition, gl);
             enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
             //enemyKiller(hitBoxChecker, 0);
 
-            newPositioner[1] = false;
-            hitBoxChecker = DrawEnemy(-16, -8, 1, 2, enemyCPosition2, gl);
+            hitBoxChecker = DrawEnemy(-5, -8, 1, 2, enemyCPosition2, gl);
             enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
 
-            newPositioner[2] = false;
             hitBoxChecker = DrawEnemy(5, 3, 2, 3, enemyCPosition3, gl);
             enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
-        } else if (level == 7) {
+        } else if (level == 8) {
             level = 1;
             lives = 5;
         }
@@ -275,8 +283,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 == 's') {
             playerPosition[3] -= 0.1f * speedModifier;
             playerPosition[2] -= 0.1f * speedModifier;
-        } else if (keyChar == KeyEvent.VK_L || keyChar
-                == 'l') {
+        } else if (keyChar == KeyEvent.VK_L || keyChar == 'l') {
             if (tutorial) {    //
                 tutorial = false;
                 level++;
@@ -831,22 +838,26 @@ public class TempProject implements GLEventListener, KeyListener {
         } else {
             int tester = (int) (newPosition[0] * 100);
             int tester2 = (int) (newPosition[2] * 100);
+            int speeder =1;
+            if (speedModifier==5) {
+                speeder=2;
+            }
             if (currentPosition[0] != (float) (tester / 100)) {
                 if (currentPosition[0] < newPosition[0]) {
-                    currentPosition[0] += 0.01f * speed * 3;
-                    currentPosition[1] += 0.01f * speed * 3;
+                    currentPosition[0] += 0.01f * speed * 3*speeder;
+                    currentPosition[1] += 0.01f * speed * 3*speeder;
                 } else {
-                    currentPosition[0] -= 0.01f * speed * 3;
-                    currentPosition[1] -= 0.01f * speed * 3;
+                    currentPosition[0] -= 0.01f * speed * 3*speeder;
+                    currentPosition[1] -= 0.01f * speed * 3*speeder;
                 }
             }
             if (currentPosition[2] != (float) (tester2 / 100)) {
                 if (currentPosition[2] < newPosition[2]) {
-                    currentPosition[2] += 0.01f * speed * 3;
-                    currentPosition[3] += 0.01f * speed * 3;
+                    currentPosition[2] += 0.01f * speed * 3*speeder;
+                    currentPosition[3] += 0.01f * speed * 3*speeder;
                 } else {
-                    currentPosition[2] -= 0.01f * speed * 3;
-                    currentPosition[3] -= 0.01f * speed * 3;
+                    currentPosition[2] -= 0.01f * speed * 3*speeder;
+                    currentPosition[3] -= 0.01f * speed * 3*speeder;
                 }
             }
             gl.glBegin(GL.GL_QUADS);
@@ -1200,7 +1211,9 @@ public class TempProject implements GLEventListener, KeyListener {
         rotation_angle = 0;
         bullets = new float[200][6];
         isBulletFired = new boolean[200];
-
+        newPositioner[0] = false;
+        newPositioner[1] = false;
+        newPositioner[2] = false;
     }
 
     // this one doesn't have a hit box, i don't know why its not working........    
