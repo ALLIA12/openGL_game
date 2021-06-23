@@ -154,6 +154,7 @@ public class TempProject implements GLEventListener, KeyListener {
 
             // draw moving objects 
             hitBoxChecker = DrawMovingObject(-5, 0, 2, 2, gl);
+
             onCollisionReset(hitBoxChecker);
             hitBoxChecker = DrawMovingObject(0, 0, 5, 3, gl);
             onCollisionReset(hitBoxChecker);
@@ -161,13 +162,13 @@ public class TempProject implements GLEventListener, KeyListener {
             onCollisionReset(hitBoxChecker);
             hitBoxChecker = DrawMovingObject(9, 0, 2, 2, gl);
             onCollisionReset(hitBoxChecker);
+
             newPositioner[0] = false;
 
             // draw enemy
             hitBoxChecker = DrawEnemy(-12, -8, 0, 1, enemyCPosition, gl);
             enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
             enemyKiller(hitBoxChecker, 0);
-
         } else if (level == 3) {
             for (int i = 0; i < 20; i++) {
                 hitBoxChecker = DrawBullet(2, gl, i);
@@ -199,6 +200,7 @@ public class TempProject implements GLEventListener, KeyListener {
 
         } else if (level == 5) {
             for (int i = 0; i < 40; i++) {
+
                 hitBoxChecker = DrawBullet(2, gl, i);
                 onCollisionResetBullet(hitBoxChecker);
             }
@@ -246,6 +248,7 @@ public class TempProject implements GLEventListener, KeyListener {
         // gravity 
         playerPosition[3] -= 0.01f;
         playerPosition[2] -= 0.01f;
+
     }
 
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
