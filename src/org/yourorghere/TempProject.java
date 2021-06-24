@@ -1,17 +1,11 @@
 package org.yourorghere;
 
 import com.sun.opengl.util.Animator;
-import com.sun.opengl.util.GLUT;
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.Arrays;
-import java.util.Vector;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCanvas;
@@ -25,6 +19,8 @@ import java.io.IOException;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class TempProject implements GLEventListener, KeyListener {
 
@@ -167,7 +163,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 levelSeven(gl, hitBoxChecker);
                 break;
             case 8:
-                levelEight(gl, hitBoxChecker);
+                levelEight(gl);
                 break;
             default:
                 // how did you get here ?
@@ -597,8 +593,8 @@ public class TempProject implements GLEventListener, KeyListener {
      */
     private float[] DrawMovingObject(int xPos, int yPos, float speed, float distance, GL gl) {
         float sinWave = (float) Math.sin(Theta * speed);
-        float yMover = sinWave * this.yMover * distance;
-        float[] objectPosition = {-1 + xPos, 0 + xPos, +yPos + yMover, +5 + yMover + yPos, 0, 1};
+        float localYmover = sinWave * this.yMover * distance;
+        float[] objectPosition = {-1 + xPos, 0 + xPos, +yPos + localYmover, +5 + localYmover + yPos, 0, 1};
 
         gl.glColor3f(1.0f, 0f, 0f);
 
@@ -608,42 +604,42 @@ public class TempProject implements GLEventListener, KeyListener {
         gl.glColor3f(1.0f, 0f, 0f);
 
         // front       
-        gl.glVertex3f(0, 0 + yMover, 0);
-        gl.glVertex3f(0, 5 + yMover, 0);
-        gl.glVertex3f(- 1, 5 + yMover, 0);
-        gl.glVertex3f(- 1, 0 + yMover, 0);
+        gl.glVertex3f(0, 0 + localYmover, 0);
+        gl.glVertex3f(0, 5 + localYmover, 0);
+        gl.glVertex3f(- 1, 5 + localYmover, 0);
+        gl.glVertex3f(- 1, 0 + localYmover, 0);
 
         //back 
-        gl.glVertex3f(0, 0 + yMover, 1);
-        gl.glVertex3f(0, 5 + yMover, 1);
-        gl.glVertex3f(- 1, 5 + yMover, 1);
-        gl.glVertex3f(- 1, 0 + yMover, 1);
+        gl.glVertex3f(0, 0 + localYmover, 1);
+        gl.glVertex3f(0, 5 + localYmover, 1);
+        gl.glVertex3f(- 1, 5 + localYmover, 1);
+        gl.glVertex3f(- 1, 0 + localYmover, 1);
 
         // left side 
         gl.glRotated(90, 0, 1, 0);
-        gl.glVertex3f(0, 0 + yMover, 0);
-        gl.glVertex3f(0, 5 + yMover, 0);
-        gl.glVertex3f(0, 5 + yMover, 1);
-        gl.glVertex3f(0, 0 + yMover, 1);
+        gl.glVertex3f(0, 0 + localYmover, 0);
+        gl.glVertex3f(0, 5 + localYmover, 0);
+        gl.glVertex3f(0, 5 + localYmover, 1);
+        gl.glVertex3f(0, 0 + localYmover, 1);
 
         // right side
         gl.glRotated(-180, 0, 1, 0);
-        gl.glVertex3f(-1, 0 + yMover, 0);
-        gl.glVertex3f(-1, 5 + yMover, 0);
-        gl.glVertex3f(-1, 5 + yMover, 1);
-        gl.glVertex3f(-1, 0 + yMover, 1);
+        gl.glVertex3f(-1, 0 + localYmover, 0);
+        gl.glVertex3f(-1, 5 + localYmover, 0);
+        gl.glVertex3f(-1, 5 + localYmover, 1);
+        gl.glVertex3f(-1, 0 + localYmover, 1);
 
         // top 
-        gl.glVertex3f(0, 5 + yMover, 0);
-        gl.glVertex3f(0, 5 + yMover, 1);
-        gl.glVertex3f(-1, 5 + yMover, 1);
-        gl.glVertex3f(-1, 5 + yMover, 0);
+        gl.glVertex3f(0, 5 + localYmover, 0);
+        gl.glVertex3f(0, 5 + localYmover, 1);
+        gl.glVertex3f(-1, 5 + localYmover, 1);
+        gl.glVertex3f(-1, 5 + localYmover, 0);
 
         // bottom 
-        gl.glVertex3f(0, 0 + yMover, 0);
-        gl.glVertex3f(0, 0 + yMover, 1);
-        gl.glVertex3f(-1, 0 + yMover, 1);
-        gl.glVertex3f(-1, 0 + yMover, 0);
+        gl.glVertex3f(0, 0 + localYmover, 0);
+        gl.glVertex3f(0, 0 + localYmover, 1);
+        gl.glVertex3f(-1, 0 + localYmover, 1);
+        gl.glVertex3f(-1, 0 + localYmover, 0);
         gl.glEnd();
         gl.glPopMatrix();
         return objectPosition;
@@ -652,7 +648,7 @@ public class TempProject implements GLEventListener, KeyListener {
     /**
      * this is used to draw the bullets, they are all spawned in random
      * locations and then they move until they exist line of sight, before
-     * respawning
+     * reappearing
      *
      * @param speed the bullet speed
      * @param gl drawer object
@@ -993,12 +989,12 @@ public class TempProject implements GLEventListener, KeyListener {
             }
             System.out.println("You have this many lifes remanining: " + lives);
             resetEverything();
-            float[] enemyCPosition = {0, 0, 0, 0, 0, 1};
-            float[] enemyCPosition2 = {0, 0, 0, 0, 0, 1};
-            float[] enemyCPosition3 = {0, 0, 0, 0, 0, 1};
-            this.enemyCPosition = enemyCPosition;
-            this.enemyCPosition2 = enemyCPosition2;
-            this.enemyCPosition3 = enemyCPosition3;
+            float[] temp1 = {0, 0, 0, 0, 0, 1};
+            float[] temp2 = {0, 0, 0, 0, 0, 1};
+            float[] temp3 = {0, 0, 0, 0, 0, 1};
+            this.enemyCPosition = temp1;
+            this.enemyCPosition2 = temp2;
+            this.enemyCPosition3 = temp3;
         }
     }
 
@@ -1293,13 +1289,16 @@ public class TempProject implements GLEventListener, KeyListener {
                 clip.open(audioInput);
                 clip.start();
                 if (musicLocation.equals("BGMusic.wav")) {
-                    clip.loop(clip.LOOP_CONTINUOUSLY);
+                    clip.loop(Clip.LOOP_CONTINUOUSLY);
                 }
-
             } else {
                 System.out.println("can't find");
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
+            System.exit(0);
+        } catch (LineUnavailableException e) {
+            System.exit(0);
+        } catch (UnsupportedAudioFileException e) {
             System.exit(0);
         }
     }
@@ -1446,13 +1445,13 @@ public class TempProject implements GLEventListener, KeyListener {
     private void levelSeven(GL gl, float[] hitBoxChecker) {
         // this is a joke of a level, you don't die
         // aka no hit box calling in this level
-        hitBoxChecker = DrawMovingObject(-5, 0, 10, 2, gl);
-        hitBoxChecker = DrawMovingObject(5, 0, 8, 2, gl);
-        hitBoxChecker = DrawMovingObject(0, 0, 5, 4, gl);
-        hitBoxChecker = DrawMovingObject(10, 2, 5, 2, gl);
-        hitBoxChecker = DrawMovingObject(15, 0, 7, 2, gl);
+        DrawMovingObject(-5, 0, 10, 2, gl);
+        DrawMovingObject(5, 0, 8, 2, gl);
+        DrawMovingObject(0, 0, 5, 4, gl);
+        DrawMovingObject(10, 2, 5, 2, gl);
+        DrawMovingObject(15, 0, 7, 2, gl);
         for (int i = 0; i < 500; i++) {
-            hitBoxChecker = DrawBullet(2, gl, i);
+            DrawBullet(2, gl, i);
         }
         hitBoxChecker = DrawEnemy(15, 0, 0, 3, enemyCPosition, gl);
         enemyDetector(0, hitBoxChecker, enemyCPosition);
@@ -1468,7 +1467,7 @@ public class TempProject implements GLEventListener, KeyListener {
      * @param gl
      * @param hitBoxChecker
      */
-    private void levelEight(GL gl, float[] hitBoxChecker) {
+    private void levelEight(GL gl) {
         FinishScreen(gl);
         finishedGame = true;
     }
