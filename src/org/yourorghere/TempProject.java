@@ -135,27 +135,26 @@ public class TempProject implements GLEventListener, KeyListener {
         if (level > 8) {
             level = 8;
         }
+        // if the tuturial is true load it
         if (tutorial) {
             tutorial(gl);
             hitBoxChecker = DrawEnemy(10, 3, 0, 1, enemyCPosition, gl);
-            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+            enemyDetector(0, hitBoxChecker, enemyCPosition);
             enemyKiller(hitBoxChecker, 0);
         }
+        // load a specific level 
         switch (level) {
             case 1:
                 levelOne(gl, hitBoxChecker);
                 break;
             case 2:
                 levelTwo(gl, hitBoxChecker);
-
                 break;
             case 3:
                 levelThree(gl, hitBoxChecker);
-
                 break;
             case 4:
                 levelFour(gl, hitBoxChecker);
-
                 break;
             case 5:
                 levelFive(gl, hitBoxChecker);
@@ -172,6 +171,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 break;
             default:
                 // how did you get here ?
+                // this is when level == 0
                 break;
         }
         // Flush all drawing operations to the graphics card
@@ -184,6 +184,7 @@ public class TempProject implements GLEventListener, KeyListener {
 
     }
 
+    // useless method
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
     }
 
@@ -193,6 +194,7 @@ public class TempProject implements GLEventListener, KeyListener {
 
     // when a key is pressed
     public void keyPressed(KeyEvent ke) {
+        // get the inputs from the user
         switch (ke.getKeyCode()) {
             case KeyEvent.VK_SPACE:
                 stop = !stop;
@@ -217,7 +219,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 playerPosition[2] -= 0.1f * speedModifier;
                 break;
             case KeyEvent.VK_L:
-                if (tutorial) {    //
+                if (tutorial) {
                     tutorial = false;
                     level++;
                 } else {
@@ -228,10 +230,8 @@ public class TempProject implements GLEventListener, KeyListener {
                 break;
             case KeyEvent.VK_T:
                 tutorial = true;
-                playerPosition[0] = -18;
-                playerPosition[1] = -17;
-                playerPosition[2] = 0;
-                playerPosition[3] = 1;
+                resetEverything();
+                level = 0;
                 break;
             case KeyEvent.VK_G:
                 gravityToggle = !gravityToggle;
@@ -239,33 +239,33 @@ public class TempProject implements GLEventListener, KeyListener {
             case KeyEvent.VK_H:
                 lives += 5;
                 break;
-            case KeyEvent.VK_2:
+            case KeyEvent.VK_DOWN:
                 cam_UD += 0.1;
                 break;
-            case KeyEvent.VK_8:
+            case KeyEvent.VK_UP:
                 cam_UD -= 0.1;
                 break;
-            case KeyEvent.VK_6:
+            case KeyEvent.VK_LEFT:
                 cam_LR += 0.1;
                 break;
-            case KeyEvent.VK_4:
+            case KeyEvent.VK_RIGHT:
                 cam_LR -= 0.1;
                 break;
-            case KeyEvent.VK_9:
+            case KeyEvent.VK_PAGE_UP:
                 cam_zoom_IO += 0.1;
                 break;
-            case KeyEvent.VK_7:
+            case KeyEvent.VK_PAGE_DOWN:
                 cam_zoom_IO -= 0.1;
                 break;
-            case KeyEvent.VK_5:
+            case KeyEvent.VK_HOME:
                 cam_zoom_IO = 0;
                 cam_UD = 0;
                 cam_LR = 0;
-                System.out.println("RESET ALL");
                 break;
             default:
                 break;
         }
+        // the next one only happens when the player has already beaten the game
         if (finishedGame) {
             switch (ke.getKeyCode()) {
                 case KeyEvent.VK_F1:
@@ -308,15 +308,14 @@ public class TempProject implements GLEventListener, KeyListener {
 
     // when a key is released
     public void keyReleased(KeyEvent ke) {
-        if (ke.isShiftDown()) {
-            speedModifier = 5;
-        } else {
-            speedModifier = 1;
-        }
-
     }
 
-    // when hit the player gets resset to the original point
+    /**
+     * This method is used to check if the user hit a specific object, its
+     * always used with moving objects and possibly enemies as well.
+     *
+     * @param hitBoxChecker
+     */
     private void onCollisionReset(float[] hitBoxChecker) {
         boolean x1 = hitBoxChecker[0] <= playerPosition[0] && playerPosition[0] <= hitBoxChecker[1];
         boolean x2 = hitBoxChecker[0] <= playerPosition[1] && playerPosition[1] <= hitBoxChecker[1];
@@ -343,7 +342,12 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    // draw top border
+    /**
+     * this method is used to draw the top border
+     *
+     * @param gl
+     * @return the border hitBox
+     */
     private float[] DrawBorderT(GL gl) {
         int minX = -12;
         int maxX = 35;
@@ -399,7 +403,12 @@ public class TempProject implements GLEventListener, KeyListener {
         return objectPosition;
     }
 
-    // draw bottom border
+    /**
+     * this method is used to draw the bottom border
+     *
+     * @param gl
+     * @return the border hitBox
+     */
     private float[] DrawBorderB(GL gl) {
         int minX = -12;
         int maxX = 35;
@@ -455,7 +464,12 @@ public class TempProject implements GLEventListener, KeyListener {
         return objectPosition;
     }
 
-    // draw left border
+    /**
+     * this method is used to draw the left border
+     *
+     * @param gl
+     * @return the border hitBox
+     */
     private float[] DrawBorderL(GL gl) {
         int minX = -12;
         int maxX = -11;
@@ -510,7 +524,12 @@ public class TempProject implements GLEventListener, KeyListener {
         return objectPosition;
     }
 
-    // draw right border
+    /**
+     * this method is used to draw the right border
+     *
+     * @param gl
+     * @return the border hitBox
+     */
     private float[] DrawBorderR(GL gl) {
         int minX = 12;
         int maxX = 11;
@@ -566,7 +585,16 @@ public class TempProject implements GLEventListener, KeyListener {
         return objectPosition;
     }
 
-    // this is used to draw an object that moves up and down
+    /**
+     * this method is used to draw a top -> down moving object
+     *
+     * @param xPos position on x axis
+     * @param yPos position on the y axis
+     * @param speed the speed at which the object moves
+     * @param distance the distance the object moves
+     * @param gl do I need to explain this ?
+     * @return hitBox
+     */
     private float[] DrawMovingObject(int xPos, int yPos, float speed, float distance, GL gl) {
         float sinWave = (float) Math.sin(Theta * speed);
         float yMover = sinWave * this.yMover * distance;
@@ -621,8 +649,16 @@ public class TempProject implements GLEventListener, KeyListener {
         return objectPosition;
     }
 
-    // this is used to darw the bullets, they are all spawned in random locations
-    // and then they move until they exist line of sight, before respwaning
+    /**
+     * this is used to draw the bullets, they are all spawned in random
+     * locations and then they move until they exist line of sight, before
+     * respawning
+     *
+     * @param speed the bullet speed
+     * @param gl drawer object
+     * @param index index in the array
+     * @return hitBox
+     */
     private float[] DrawBullet(int speed, GL gl, int index) {
         if (!isBulletFired[index]) {
             bullets[index][0] = (float) ((Math.random() * 20) + 30);
@@ -650,7 +686,11 @@ public class TempProject implements GLEventListener, KeyListener {
         return x;
     }
 
-    // this is used to draw the player character
+    /**
+     * this method is used to draw the player object
+     *
+     * @param gl drawer
+     */
     private void DrawPlayer(GL gl) {
         gl.glPushMatrix();
         gl.glTranslated(playerPosition[0] + ((playerPosition[1] - playerPosition[0]) / 2), playerPosition[2] + (playerPosition[3] - playerPosition[2]) / 2, 0);
@@ -701,8 +741,14 @@ public class TempProject implements GLEventListener, KeyListener {
         //gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
     }
 
-    // this is used to draw the finish object, when you enter it, you skip to 
-    // the next level
+    /**
+     * this method is used to draw the finish object
+     *
+     * @param xPos position on the x axis
+     * @param yPos position on the y axis
+     * @param gl drawer
+     * @return hitBox
+     */
     private float[] DrawFinishObject(int xPos, int yPos, GL gl) {
         gl.glPushMatrix();
         gl.glTranslatef(xPos, yPos, 0);
@@ -750,7 +796,17 @@ public class TempProject implements GLEventListener, KeyListener {
         return objectPosition;
     }
 
-    // this is used to draw the enemey that follows you
+    /**
+     * this is used to draw the enemy that follows you around
+     *
+     * @param xPos position on the x axis
+     * @param yPos position on the y axis
+     * @param index index in the array, {0,1,2}
+     * @param speed speed of movement, {0,1,2}
+     * @param currentPosition the array of its current position
+     * @param gl drawer
+     * @return hitBox
+     */
     private float[] DrawEnemy(int xPos, int yPos, int index, int speed, float[] currentPosition, GL gl) {
         gl.glPushMatrix();
         gl.glTranslatef(xPos, yPos, 0);
@@ -876,10 +932,16 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    // this is for the enemies radius checker, if you enter said radius
-    // they will start following you around the map, until they lose sight of you,
-    // and then they will begin their search all over again
-    private void enemyDetector(int index, float[] hitBoxChecker, GL gl, float[] currentPosition) {
+    /**
+     * this is for the enemies circumference checker, if you enter said
+     * circumference they will start following you around the map, until they
+     * lose sight of you, and then they will begin their search all over again
+     *
+     * @param index index in the array, {0,1,2}
+     * @param hitBoxChecker its hitBox
+     * @param currentPosition the current position of the enemy
+     */
+    private void enemyDetector(int index, float[] hitBoxChecker, float[] currentPosition) {
         boolean x1 = (hitBoxChecker[0] - 6) <= playerPosition[0] && playerPosition[0] <= hitBoxChecker[1] + 6;
         boolean x2 = (hitBoxChecker[0] - 6) <= playerPosition[1] && playerPosition[1] <= hitBoxChecker[1] + 6;
         boolean y1 = (hitBoxChecker[2] - 6) <= playerPosition[2] && playerPosition[2] <= (hitBoxChecker[3] + 6);
@@ -900,11 +962,15 @@ public class TempProject implements GLEventListener, KeyListener {
             detec[index] = true;
         } else if (!((x1 || x2) && (y1 || y2) && (z1 || z2)) || (float) (tester3 / 100) == (float) (tester / 100) && (float) (tester4 / 100) == (float) (tester2 / 100)) {
             detec[index] = false;
-
         }
     }
 
-    // this is the hitbox checker for enemies that follow you
+    /**
+     * This is used to check if you the player hit an enemy and died
+     *
+     * @param hitBoxChecker the enemy hitBox
+     * @param index its index in the array, {0,1,2}
+     */
     private void enemyKiller(float[] hitBoxChecker, int index) {
         boolean x1 = hitBoxChecker[0] <= playerPosition[0] && playerPosition[0] <= hitBoxChecker[1];
         boolean x2 = hitBoxChecker[0] <= playerPosition[1] && playerPosition[1] <= hitBoxChecker[1];
@@ -936,8 +1002,12 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    // this is the normal hitbox checker for the finish object
-    private void onCollisionNext(float[] hitBoxChecker, GL gl) {
+    /**
+     * This is used to go to the next level
+     *
+     * @param hitBoxChecker
+     */
+    private void onCollisionNext(float[] hitBoxChecker) {
         boolean x1 = hitBoxChecker[0] <= playerPosition[0] && playerPosition[0] <= hitBoxChecker[1];
         boolean x2 = hitBoxChecker[0] <= playerPosition[1] && playerPosition[1] <= hitBoxChecker[1];
         boolean y1 = hitBoxChecker[2] <= playerPosition[2] && playerPosition[2] <= hitBoxChecker[3];
@@ -961,7 +1031,11 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    // this just shows how many lives the player has left
+    /**
+     * this is used to draw the lives in the top left corner
+     *
+     * @param gl
+     */
     private void showLives(GL gl) {
         gl.glColor3f(0, 1, 0);
         gl.glRasterPos3f(-22, 11f, 0);
@@ -971,8 +1045,11 @@ public class TempProject implements GLEventListener, KeyListener {
 
     }
 
-    // this method is called every time display gets called, it has the shared
-    // objects drawn in it
+    /**
+     * this method is called every frame to put the basic stuff
+     *
+     * @param gl
+     */
     private void startUp(GL gl) {
         // set the view
         // setCamera(gl, glu); not used
@@ -996,7 +1073,7 @@ public class TempProject implements GLEventListener, KeyListener {
         gl.glTranslatef(cam_LR, cam_UD, -29 + cam_zoom_IO);
         float[] hitBoxChecker;
         hitBoxChecker = DrawFinishObject(13, -3, gl);
-        onCollisionNext(hitBoxChecker, gl);
+        onCollisionNext(hitBoxChecker);
         // disable the light that shines on the finish object.
         gl.glDisable(GL.GL_LIGHT1);
         gl.glDisable(GL.GL_LIGHTING);
@@ -1057,7 +1134,12 @@ public class TempProject implements GLEventListener, KeyListener {
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
     }
 
-    // draw the worst spikes you have ever seen
+    /**
+     * This is used to draw the most scuffed spikes you could ever find anywhere
+     * :)
+     *
+     * @param gl
+     */
     private void drawSpikes(GL gl) {
         Texture tex;
         //activate texture mapping for 2D
@@ -1084,7 +1166,11 @@ public class TempProject implements GLEventListener, KeyListener {
         gl.glDisable(GL.GL_TEXTURE_2D);
     }
 
-    // this is hitbox checker for bullets
+    /**
+     * this is used to check if a bullet enters the player hitBox
+     *
+     * @param hitBoxChecker bullet hitBox
+     */
     private void onCollisionResetBullet(float[] hitBoxChecker) {
         boolean x1 = playerPosition[0] <= hitBoxChecker[0] && hitBoxChecker[0] <= playerPosition[1];
         boolean x2 = playerPosition[0] <= hitBoxChecker[1] && hitBoxChecker[1] <= playerPosition[1];
@@ -1112,7 +1198,11 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    // this displays the text on the tutorial
+    /**
+     * This is used to draw the tutorial level
+     *
+     * @param gl
+     */
     private void tutorial(GL gl) {
         GLUT glut = new GLUT();
         gl.glColor3f(1, 1, 0);
@@ -1147,12 +1237,21 @@ public class TempProject implements GLEventListener, KeyListener {
         String string9 = "H add more lives";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string9);
 
+        gl.glRasterPos3f(-22f, 3f, 0);
+        String string10 = "ARROWS for camera control";
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string10);
+
         gl.glColor3f(0, 0, 1);
         gl.glRasterPos3f(4f, 4f, 0);
         String string6 = "Blues are ailen UFOs, Dodge them";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string6);
     }
 
+    /**
+     * This si used to draw the last level
+     *
+     * @param gl
+     */
     private void FinishScreen(GL gl) {
         GLUT glut = new GLUT();
         gl.glColor3f(1, 1, 0);
@@ -1161,7 +1260,11 @@ public class TempProject implements GLEventListener, KeyListener {
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
     }
 
-    // this displays the text on level 1
+    /**
+     * Level 1 texts
+     *
+     * @param gl
+     */
     private void level1Text(GL gl) {
         GLUT glut = new GLUT();
         gl.glColor3f(1, 0, 0);
@@ -1174,7 +1277,12 @@ public class TempProject implements GLEventListener, KeyListener {
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string1);
     }
 
-    // this plays the back ground music
+    /**
+     * This plays the backGround music
+     *
+     * @param musicLocation the location of the music file you want to use,
+     * relative to the project location
+     */
     private void playMusic(String musicLocation) {
         try {
             File musicPath = new File(musicLocation);
@@ -1196,7 +1304,9 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
-    // reset everything that might have changec, except lives
+    /**
+     * reset everything that might have changed, except lives
+     */
     private void resetEverything() {
         playerPosition[0] = -16;
         playerPosition[1] = -15;
@@ -1210,6 +1320,12 @@ public class TempProject implements GLEventListener, KeyListener {
         newPositioner[2] = false;
     }
 
+    /**
+     * Draw the 1st level, one moving object
+     *
+     * @param gl
+     * @param hitBoxChecker this one will be used at every level
+     */
     private void levelOne(GL gl, float[] hitBoxChecker) {
         gl.glColor3f(1.0f, 0f, 0f);
         level1Text(gl);
@@ -1217,6 +1333,12 @@ public class TempProject implements GLEventListener, KeyListener {
         onCollisionReset(hitBoxChecker);
     }
 
+    /**
+     * Draw the 2nd level, 4 moving objects, 1 enemy
+     *
+     * @param gl
+     * @param hitBoxChecker
+     */
     private void levelTwo(GL gl, float[] hitBoxChecker) {
         gl.glColor3f(1.0f, 0f, 0f);
         // draw moving objects
@@ -1230,10 +1352,16 @@ public class TempProject implements GLEventListener, KeyListener {
         onCollisionReset(hitBoxChecker);
         // draw enemy
         hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
-        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyDetector(0, hitBoxChecker, enemyCPosition);
         enemyKiller(hitBoxChecker, 0);
     }
 
+    /**
+     * Draw the 3rd level, 30 bullets
+     *
+     * @param gl
+     * @param hitBoxChecker
+     */
     private void levelThree(GL gl, float[] hitBoxChecker) {
         GLUT glut = new GLUT();
         gl.glColor3f(1, 0, 0);
@@ -1246,6 +1374,12 @@ public class TempProject implements GLEventListener, KeyListener {
         }
     }
 
+    /**
+     * Draw the 4th level, 2 moving objects, 3 enemies
+     *
+     * @param gl
+     * @param hitBoxChecker
+     */
     private void levelFour(GL gl, float[] hitBoxChecker) {
         // draw moving objects
         hitBoxChecker = DrawMovingObject(-5, 0, 5, 2, gl);
@@ -1254,42 +1388,61 @@ public class TempProject implements GLEventListener, KeyListener {
         hitBoxChecker = DrawMovingObject(10, 0, 10, 2, gl);
         onCollisionReset(hitBoxChecker);
         hitBoxChecker = DrawEnemy(-5, -8, 0, 2, enemyCPosition, gl);
-        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyDetector(0, hitBoxChecker, enemyCPosition);
         enemyKiller(hitBoxChecker, 0);
         hitBoxChecker = DrawEnemy(1, -3, 1, 1, enemyCPosition2, gl);
-        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        enemyDetector(1, hitBoxChecker, enemyCPosition2);
         enemyKiller(hitBoxChecker, 1);
         hitBoxChecker = DrawEnemy(1, 3, 2, 1, enemyCPosition3, gl);
-        enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+        enemyDetector(2, hitBoxChecker, enemyCPosition3);
         enemyKiller(hitBoxChecker, 2);
     }
 
+    /**
+     * Draw the fifth level, 2 enemies, 40 bullets
+     *
+     * @param gl
+     * @param hitBoxChecker
+     */
     private void levelFive(GL gl, float[] hitBoxChecker) {
         for (int i = 0; i < 40; i++) {
             hitBoxChecker = DrawBullet(2, gl, i);
             onCollisionResetBullet(hitBoxChecker);
         }
         hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
-        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyDetector(0, hitBoxChecker, enemyCPosition);
         enemyKiller(hitBoxChecker, 0);
 
         hitBoxChecker = DrawEnemy(0, 8, 1, 1, enemyCPosition2, gl);
-        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        enemyDetector(1, hitBoxChecker, enemyCPosition2);
         enemyKiller(hitBoxChecker, 1);
     }
 
+    /**
+     * Draw the 6th level, 3 enemies(2 fast, 1 slow)
+     *
+     * @param gl
+     * @param hitBoxChecker
+     */
     private void levelSix(GL gl, float[] hitBoxChecker) {
         hitBoxChecker = DrawEnemy(-5, -7, 0, 1, enemyCPosition, gl);
-        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyDetector(0, hitBoxChecker, enemyCPosition);
         enemyKiller(hitBoxChecker, 0);
         hitBoxChecker = DrawEnemy(0, 4, 1, 2, enemyCPosition2, gl);
-        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        enemyDetector(1, hitBoxChecker, enemyCPosition2);
         enemyKiller(hitBoxChecker, 1);
         hitBoxChecker = DrawEnemy(10, -2, 2, 2, enemyCPosition3, gl);
-        enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+        enemyDetector(2, hitBoxChecker, enemyCPosition3);
         enemyKiller(hitBoxChecker, 2);
     }
 
+    /**
+     * This level is just a joke of a level, you don't die Draw the 7th level, 5
+     * moving objects 3 enemies, 500 bullets
+     *
+     * @param gl
+     * @param hitBoxChecker
+     */
     private void levelSeven(GL gl, float[] hitBoxChecker) {
         // this is a joke of a level, you don't die
         // aka no hit box calling in this level
@@ -1302,20 +1455,34 @@ public class TempProject implements GLEventListener, KeyListener {
             hitBoxChecker = DrawBullet(2, gl, i);
         }
         hitBoxChecker = DrawEnemy(15, 0, 0, 3, enemyCPosition, gl);
-        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyDetector(0, hitBoxChecker, enemyCPosition);
         hitBoxChecker = DrawEnemy(-5, -8, 1, 3, enemyCPosition2, gl);
-        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        enemyDetector(1, hitBoxChecker, enemyCPosition2);
         hitBoxChecker = DrawEnemy(5, 3, 2, 3, enemyCPosition3, gl);
-        enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+        enemyDetector(2, hitBoxChecker, enemyCPosition3);
     }
 
+    /**
+     * this is the final screen
+     *
+     * @param gl
+     * @param hitBoxChecker
+     */
     private void levelEight(GL gl, float[] hitBoxChecker) {
         FinishScreen(gl);
         finishedGame = true;
     }
 
-    // this one doesn't have a hit box, i don't know why its not working........    
-    // so I just skipped it
+    /**
+     * I tried to implement this one, I wanted to make an object that rotates in
+     * its current position about the Z axis, but I just couldn't for the what
+     * ever reason get it to work fine, so I just kept it as it is, without
+     * changing anything, this version is probably bad, because I made like 20
+     * of them and I lost most changes T_T
+     *
+     * @param gl
+     * @return
+     */
     private float[] DrawRotatingObject(GL gl) {
         float[] hitBox = new float[6];
         gl.glPushMatrix();
