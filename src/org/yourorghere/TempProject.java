@@ -1024,6 +1024,7 @@ public class TempProject implements GLEventListener, KeyListener {
             playerPosition[2] = 0;
             playerPosition[3] = 1;
             rotation_angle = 0;
+            resetEverything();
         }
     }
 
