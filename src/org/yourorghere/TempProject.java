@@ -28,37 +28,34 @@ import javax.sound.sampled.Clip;
 
 public class TempProject implements GLEventListener, KeyListener {
 
-    int frames = 0;
-    float Theta = 0;
-    int yMover = 2;
+    boolean tutorial = true;
+    boolean finishedGame = false;
+    boolean gravityToggle = true;
     boolean stop = false;
     boolean isRunning = false;
+    int frames = 0; // control stars speed
+    int yMover = 2;
     int level = 0;
     int lives = 5;
+    int speedModifier = 1; // player speed modifier
+    float Theta = 0;// controls object movement 
     float objectRotation = 0;
     float rotation_angle = 0;
     float cam_zoom_IO = 0;
     float cam_LR = 0;
     float cam_UD = 0;
-    float rotate_LR = 0;// not used
-    float rotate_UD = 0;// not used
-    int speedModifier = 1;
+    boolean[] newPositioner = new boolean[3];
+    boolean[] isBulletFired = new boolean[500];
+    boolean[] detec = new boolean[3]; // detection status by enemies
     float playerPosition[] = {0, 1, 0, 1, 0, 1};
-    float bullets[][] = new float[200][6];
-    boolean[] isBulletFired = new boolean[200];
-    float[] enemyCPosition = {0, 0, 0, 0, 0, 1};
+    float bullets[][] = new float[500][6];
+    float[] enemyCPosition = {0, 0, 0, 0, 0, 1}; // current enemy position 
     float[] enemyCPosition2 = {0, 0, 0, 0, 0, 1};
     float[] enemyCPosition3 = {0, 0, 0, 0, 0, 1};
-    boolean[] detec = new boolean[3];
-    float newPosition[] = {0, 1, 0, 1, 0, 1};
+    float newPosition[] = {0, 1, 0, 1, 0, 1}; // new enemy positions
     float newPosition2[] = {0, 1, 0, 1, 0, 1};
     float newPosition3[] = {0, 1, 0, 1, 0, 1};
     double stars[][] = new double[2][100];
-    boolean[] newPositioner = new boolean[3];
-    GLU glu;// not used
-    int width = 1280;// not used
-    int height = 720;// not used
-    boolean tutorial = true;
 
     public static void main(String[] args) {
 
@@ -107,7 +104,6 @@ public class TempProject implements GLEventListener, KeyListener {
         playerPosition[2] = 0;
         playerPosition[3] = 1;
         rotation_angle = 0;
-        glu = new GLU();
     }
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
@@ -124,8 +120,7 @@ public class TempProject implements GLEventListener, KeyListener {
         glu.gluPerspective(45.0f, h, 1.0, 50.0);
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadIdentity();
-        this.width = width;
-        this.height = height;
+
     }
 
     public void display(GLAutoDrawable drawable) {
@@ -136,203 +131,178 @@ public class TempProject implements GLEventListener, KeyListener {
         if (stop) {
             return;
         }
+        // reset levels if you go out of range
+        if (level > 8) {
+            level = 8;
+        }
         if (tutorial) {
             tutorial(gl);
             hitBoxChecker = DrawEnemy(10, 3, 0, 1, enemyCPosition, gl);
             enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
             enemyKiller(hitBoxChecker, 0);
-            lives = 5;
-        } else if (level == 1) {
-            gl.glColor3f(1.0f, 0f, 0f);
-
-            level1Text(gl);
-            hitBoxChecker = DrawMovingObject(0, 0, 5, 1, gl);
-            onCollisionReset(hitBoxChecker);
-
-        } else if (level == 2) {
-            gl.glColor3f(1.0f, 0f, 0f);
-
-            // draw moving objects 
-            hitBoxChecker = DrawMovingObject(-5, 0, 2, 2, gl);
-
-            onCollisionReset(hitBoxChecker);
-            hitBoxChecker = DrawMovingObject(0, 0, 5, 3, gl);
-            onCollisionReset(hitBoxChecker);
-            hitBoxChecker = DrawMovingObject(+5, 0, 6, 5, gl);
-            onCollisionReset(hitBoxChecker);
-            hitBoxChecker = DrawMovingObject(9, 0, 2, 2, gl);
-            onCollisionReset(hitBoxChecker);
-
-
-            // draw enemy
-            hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
-            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
-            enemyKiller(hitBoxChecker, 0);
-        } else if (level == 3) {
-            for (int i = 0; i < 20; i++) {
-                hitBoxChecker = DrawBullet(2, gl, i);
-                onCollisionResetBullet(hitBoxChecker);
-            }
-        } else if (level == 4) {
-            // draw moving objects 
-            hitBoxChecker = DrawMovingObject(-5, 0, 5, 2, gl);
-            onCollisionReset(hitBoxChecker);
-
-            // draw moving objects 
-            hitBoxChecker = DrawMovingObject(10, 0, 10, 2, gl);
-            onCollisionReset(hitBoxChecker);
-
-            hitBoxChecker = DrawEnemy(-5, -8, 0, 2, enemyCPosition, gl);
-            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
-            enemyKiller(hitBoxChecker, 0);
-
-            hitBoxChecker = DrawEnemy(1, -3, 1, 2, enemyCPosition2, gl);
-            enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
-            enemyKiller(hitBoxChecker, 1);
-
-            hitBoxChecker = DrawEnemy(1, 3, 2, 2, enemyCPosition3, gl);
-            enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
-            enemyKiller(hitBoxChecker, 2);
-
-        } else if (level == 5) {
-            for (int i = 0; i < 40; i++) {
-
-                hitBoxChecker = DrawBullet(2, gl, i);
-                onCollisionResetBullet(hitBoxChecker);
-            }
-            
-            hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
-            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
-            enemyKiller(hitBoxChecker, 0);
-
-        } else if (level == 6) {
-            hitBoxChecker = DrawEnemy(-5, -7, 0, 1, enemyCPosition, gl);
-            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
-            enemyKiller(hitBoxChecker, 0);
-            
-            hitBoxChecker = DrawEnemy(0, 4, 1, 2, enemyCPosition2, gl);
-            enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
-            enemyKiller(hitBoxChecker, 1);
-            
-            hitBoxChecker = DrawEnemy(10, -2, 2, 3, enemyCPosition3, gl);
-            enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
-            enemyKiller(hitBoxChecker, 2);
-            
-            
-
-        }else if (level == 7) {
-
-            // this is a joke of a level, you don't die
-            hitBoxChecker = DrawMovingObject(-5, 0, 10, 2, gl);
-
-            hitBoxChecker = DrawMovingObject(5, 0, 8, 2, gl);
-
-            hitBoxChecker = DrawMovingObject(0, 0, 5, 4, gl);
-
-            hitBoxChecker = DrawMovingObject(10, 2, 5, 2, gl);
-
-            hitBoxChecker = DrawMovingObject(15, 0, 7, 2, gl);
-
-            for (int i = 0; i < 200; i++) {
-                hitBoxChecker = DrawBullet(2, gl, i);
-            }
-
-            hitBoxChecker = DrawEnemy(15, 0, 0, 2, enemyCPosition, gl);
-            enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
-            //enemyKiller(hitBoxChecker, 0);
-
-            hitBoxChecker = DrawEnemy(-5, -8, 1, 2, enemyCPosition2, gl);
-            enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
-
-            hitBoxChecker = DrawEnemy(5, 3, 2, 3, enemyCPosition3, gl);
-            enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
-        } else if (level == 8) {
-            level = 1;
-            lives = 5;
         }
+        switch (level) {
+            case 1:
+                levelOne(gl, hitBoxChecker);
+                break;
+            case 2:
+                levelTwo(gl, hitBoxChecker);
 
+                break;
+            case 3:
+                levelThree(gl, hitBoxChecker);
+
+                break;
+            case 4:
+                levelFour(gl, hitBoxChecker);
+
+                break;
+            case 5:
+                levelFive(gl, hitBoxChecker);
+                break;
+            case 6:
+                levelSix(gl, hitBoxChecker);
+                break;
+            case 7:
+                // this next level is a joke :)
+                levelSeven(gl, hitBoxChecker);
+                break;
+            case 8:
+                levelEight(gl, hitBoxChecker);
+                break;
+            default:
+                // how did you get here ?
+                break;
+        }
         // Flush all drawing operations to the graphics card
         gl.glFlush();
-        // gravity 
-        playerPosition[3] -= 0.01f;
-        playerPosition[2] -= 0.01f;
+        // check if gravity is on
+        if (gravityToggle) {
+            playerPosition[3] -= 0.01f;
+            playerPosition[2] -= 0.01f;
+        }
 
     }
 
     public void displayChanged(GLAutoDrawable drawable, boolean modeChanged, boolean deviceChanged) {
     }
 
-    // when a key is pressed
-    public void keyTyped(KeyEvent key) {
-        char keyChar = key.getKeyChar();
-        if (keyChar == KeyEvent.VK_C || keyChar == 'c') {
-            isRunning = !isRunning;
-        } else if (keyChar == KeyEvent.VK_D || keyChar
-                == 'd') {
-            rotation_angle += .5f;
-        } else if (keyChar == KeyEvent.VK_A || keyChar
-                == 'a') {
-            rotation_angle -= .5f;
-        } else if (keyChar == KeyEvent.VK_W || keyChar
-                == 'w') {
-            playerPosition[0] += 0.1f * speedModifier * Math.sin(rotation_angle);
-            playerPosition[1] += 0.1f * speedModifier * Math.sin(rotation_angle);
-            playerPosition[3] += 0.1f * speedModifier * Math.cos(rotation_angle);
-            playerPosition[2] += 0.1f * speedModifier * Math.cos(rotation_angle);
-        } else if (keyChar == KeyEvent.VK_S || keyChar
-                == 's') {
-            playerPosition[3] -= 0.1f * speedModifier;
-            playerPosition[2] -= 0.1f * speedModifier;
-        } else if (keyChar == KeyEvent.VK_L || keyChar == 'l') {
-            if (tutorial) {    //
-                tutorial = false;
-                level++;
-            } else {
-                level++;
-            }
-            playMusic("bleep.wav");
-            resetEverything();
-        } else if (keyChar == KeyEvent.VK_T || keyChar
-                == 't') {
-            tutorial = true;
-            playerPosition[0] = -18;
-            playerPosition[1] = -17;
-            playerPosition[2] = 0;
-            playerPosition[3] = 1;
-        } else if (keyChar == KeyEvent.VK_G || keyChar == 'g') {
-            lives = 99999999;
-        } else if (keyChar
-                == '2') {
-            cam_UD += 0.1;
-        } else if (keyChar
-                == '8') {
-            cam_UD -= 0.1;
-        } else if (keyChar
-                == '4') {
-            cam_LR += 0.1;
-        } else if (keyChar
-                == '6') {
-            cam_LR -= 0.1;
-        } else if (keyChar
-                == '9') {
-            cam_zoom_IO += 0.1;
-        } else if (keyChar
-                == '7') {
-            cam_zoom_IO -= 0.1;
-        } else if (keyChar
-                == '5') {
-            cam_zoom_IO = 0;
-            cam_UD = 0;
-            cam_LR = 0;
-            System.out.println("RESET ALL");
-        }
+    // when a key is typed
+    public void keyTyped(KeyEvent ke) {
     }
 
-// when a key is pressed
+    // when a key is pressed
     public void keyPressed(KeyEvent ke) {
-        char keyChar = ke.getKeyChar();
-        if (keyChar == KeyEvent.VK_SPACE) {
-            stop = !stop;
+        switch (ke.getKeyCode()) {
+            case KeyEvent.VK_SPACE:
+                stop = !stop;
+                break;
+            case KeyEvent.VK_C:
+                isRunning = !isRunning;
+                break;
+            case KeyEvent.VK_D:
+                rotation_angle += .5f;
+                break;
+            case KeyEvent.VK_A:
+                rotation_angle -= .5f;
+                break;
+            case KeyEvent.VK_W:
+                playerPosition[0] += 0.1f * speedModifier * Math.sin(rotation_angle);
+                playerPosition[1] += 0.1f * speedModifier * Math.sin(rotation_angle);
+                playerPosition[3] += 0.1f * speedModifier * Math.cos(rotation_angle);
+                playerPosition[2] += 0.1f * speedModifier * Math.cos(rotation_angle);
+                break;
+            case KeyEvent.VK_S:
+                playerPosition[3] -= 0.1f * speedModifier;
+                playerPosition[2] -= 0.1f * speedModifier;
+                break;
+            case KeyEvent.VK_L:
+                if (tutorial) {    //
+                    tutorial = false;
+                    level++;
+                } else {
+                    level++;
+                }
+                playMusic("bleep.wav");
+                resetEverything();
+                break;
+            case KeyEvent.VK_T:
+                tutorial = true;
+                playerPosition[0] = -18;
+                playerPosition[1] = -17;
+                playerPosition[2] = 0;
+                playerPosition[3] = 1;
+                break;
+            case KeyEvent.VK_G:
+                gravityToggle = !gravityToggle;
+                break;
+            case KeyEvent.VK_H:
+                lives += 5;
+                break;
+            case KeyEvent.VK_2:
+                cam_UD += 0.1;
+                break;
+            case KeyEvent.VK_8:
+                cam_UD -= 0.1;
+                break;
+            case KeyEvent.VK_6:
+                cam_LR += 0.1;
+                break;
+            case KeyEvent.VK_4:
+                cam_LR -= 0.1;
+                break;
+            case KeyEvent.VK_9:
+                cam_zoom_IO += 0.1;
+                break;
+            case KeyEvent.VK_7:
+                cam_zoom_IO -= 0.1;
+                break;
+            case KeyEvent.VK_5:
+                cam_zoom_IO = 0;
+                cam_UD = 0;
+                cam_LR = 0;
+                System.out.println("RESET ALL");
+                break;
+            default:
+                break;
+        }
+        if (finishedGame) {
+            switch (ke.getKeyCode()) {
+                case KeyEvent.VK_F1:
+                    level = 1;
+                    resetEverything();
+                    break;
+                case KeyEvent.VK_F2:
+                    level = 2;
+                    resetEverything();
+                    break;
+                case KeyEvent.VK_F3:
+                    level = 3;
+                    resetEverything();
+                    break;
+                case KeyEvent.VK_F4:
+                    level = 4;
+                    resetEverything();
+                    break;
+                case KeyEvent.VK_F5:
+                    level = 5;
+                    resetEverything();
+                    break;
+                case KeyEvent.VK_F6:
+                    level = 6;
+                    resetEverything();
+                    break;
+                case KeyEvent.VK_F7:
+                    level = 7;
+                    resetEverything();
+                    break;
+                case KeyEvent.VK_F8:
+                    level = 8;
+                    resetEverything();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -361,7 +331,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 System.out.println("You died, RIP");
                 playMusic("Explosion.wav");
                 try {
-                    Thread.sleep(5200);
+                    Thread.sleep(5500);
                 } catch (InterruptedException ex) {
                 }
                 System.exit(0);
@@ -838,26 +808,26 @@ public class TempProject implements GLEventListener, KeyListener {
         } else {
             int tester = (int) (newPosition[0] * 100);
             int tester2 = (int) (newPosition[2] * 100);
-            int speeder =1;
-            if (speedModifier==5) {
-                speeder=2;
+            int speeder = 1;
+            if (speedModifier == 5) {
+                speeder = 2;
             }
             if (currentPosition[0] != (float) (tester / 100)) {
                 if (currentPosition[0] < newPosition[0]) {
-                    currentPosition[0] += 0.01f * speed * 3*speeder;
-                    currentPosition[1] += 0.01f * speed * 3*speeder;
+                    currentPosition[0] += 0.01f * speed * 3 * speeder;
+                    currentPosition[1] += 0.01f * speed * 3 * speeder;
                 } else {
-                    currentPosition[0] -= 0.01f * speed * 3*speeder;
-                    currentPosition[1] -= 0.01f * speed * 3*speeder;
+                    currentPosition[0] -= 0.01f * speed * 3 * speeder;
+                    currentPosition[1] -= 0.01f * speed * 3 * speeder;
                 }
             }
             if (currentPosition[2] != (float) (tester2 / 100)) {
                 if (currentPosition[2] < newPosition[2]) {
-                    currentPosition[2] += 0.01f * speed * 3*speeder;
-                    currentPosition[3] += 0.01f * speed * 3*speeder;
+                    currentPosition[2] += 0.01f * speed * 3 * speeder;
+                    currentPosition[3] += 0.01f * speed * 3 * speeder;
                 } else {
-                    currentPosition[2] -= 0.01f * speed * 3*speeder;
-                    currentPosition[3] -= 0.01f * speed * 3*speeder;
+                    currentPosition[2] -= 0.01f * speed * 3 * speeder;
+                    currentPosition[3] -= 0.01f * speed * 3 * speeder;
                 }
             }
             gl.glBegin(GL.GL_QUADS);
@@ -950,7 +920,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 System.out.println("You died, RIP");
                 playMusic("Explosion.wav");
                 try {
-                    Thread.sleep(5200);
+                    Thread.sleep(5500);
                 } catch (InterruptedException ex) {
                 }
                 System.exit(0);
@@ -995,9 +965,9 @@ public class TempProject implements GLEventListener, KeyListener {
     private void showLives(GL gl) {
         gl.glColor3f(0, 1, 0);
         gl.glRasterPos3f(-22, 11f, 0);
-        String string = String.format("%d /5 lives ", lives);
+        String string = String.format("%d lives ", lives);
         GLUT glut = new GLUT();
-        glut.glutBitmapString(GLUT.BITMAP_8_BY_13, string);
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
 
     }
 
@@ -1057,7 +1027,6 @@ public class TempProject implements GLEventListener, KeyListener {
         // draw the spikes
         gl.glTranslatef(-23, -12, 0);
         gl.glScaled(7.66666, 1, 1);
-        gl.glTexParameteri(height, frames, frames);
         int i = 0;
         while (true) {
             drawSpikes(gl);
@@ -1080,6 +1049,12 @@ public class TempProject implements GLEventListener, KeyListener {
         } else {
             speedModifier = 1;
         }
+        // show current level
+        GLUT glut = new GLUT();
+        gl.glColor3f(0, 1, 0);
+        gl.glRasterPos3f(19f, 11, 0);
+        String string = String.format("Level: %d", level);
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
     }
 
     // draw the worst spikes you have ever seen
@@ -1124,7 +1099,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 System.out.println("You died, RIP");
                 playMusic("Explosion.wav");
                 try {
-                    Thread.sleep(5200);
+                    Thread.sleep(5500);
                 } catch (InterruptedException ex) {
                 }
                 System.exit(0);
@@ -1140,43 +1115,62 @@ public class TempProject implements GLEventListener, KeyListener {
     // this displays the text on the tutorial
     private void tutorial(GL gl) {
         GLUT glut = new GLUT();
-        gl.glColor3f(1, 1, 1);
-        gl.glRasterPos3f(-7f, 10f, 0);
-        String string = "This is the tutorial, please learn how to play here";
-        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
+        gl.glColor3f(1, 1, 0);
 
-        gl.glRasterPos3f(-7f, 9f, 0);
-        String string5 = "Go to the Yellow square to win!!";
+        gl.glRasterPos3f(8f, -2f, 0);
+        String string5 = "Yellow leads to the escape route";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string5);
 
-        gl.glRasterPos3f(-16f, -5f, 0);
-        String string2 = "press D to rotate downward                                                                                 press A to rotate upward";
+        gl.glColor3f(1, 1, 1);
+
+        gl.glRasterPos3f(-22f, 9f, 0);
+        String string2 = "A/D Rotation";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string2);
 
-        gl.glRasterPos3f(-16f, -7f, 0);
-        String string3 = "press W to move forward                      press C to toggle speed mode            press S to move downward";
+        gl.glRasterPos3f(-22f, 8f, 0);
+        String string3 = "W Thrust, S descend";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string3);
 
-        gl.glRasterPos3f(-16f, -9f, 0);
-        String string4 = "press L to go to next level                                                                             press T to enter this tutorial map again";
+        gl.glRasterPos3f(-22f, 7f, 0);
+        String string4 = "L skip level";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string4);
 
-        gl.glRasterPos3f(4f, 4f, 0);
-        String string6 = "Blue cubes are enemies!! don't let them catch you";
-        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string6);
+        gl.glRasterPos3f(-22f, 6f, 0);
+        String string7 = "G toggle gravity";
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string7);
 
+        gl.glRasterPos3f(-22f, 5f, 0);
+        String string8 = "C toggle speed";
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string8);
+
+        gl.glRasterPos3f(-22f, 4f, 0);
+        String string9 = "H add more lives";
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string9);
+
+        gl.glColor3f(0, 0, 1);
+        gl.glRasterPos3f(4f, 4f, 0);
+        String string6 = "Blues are ailen UFOs, Dodge them";
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string6);
+    }
+
+    private void FinishScreen(GL gl) {
+        GLUT glut = new GLUT();
+        gl.glColor3f(1, 1, 0);
+        gl.glRasterPos3f(-10f, 8, 0);
+        String string = "Congratulations on escaping... You can try your luck again by using F1-F8";
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
     }
 
     // this displays the text on level 1
     private void level1Text(GL gl) {
         GLUT glut = new GLUT();
-        gl.glColor3f(1, 1, 1);
+        gl.glColor3f(1, 0, 0);
         gl.glRasterPos3f(-7f, 10f, 0);
-        String string = "You only have 5 lives!! Be aware to not run out of lives";
+        String string = "You only get 5 lives, make them count stranger";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
 
-        gl.glRasterPos3f(-3f, -9f, 0);
-        String string1 = "Dodge the red objects";
+        gl.glRasterPos3f(-4f, -9f, 0);
+        String string1 = "Dodge the red asteroids";
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string1);
     }
 
@@ -1209,11 +1203,115 @@ public class TempProject implements GLEventListener, KeyListener {
         playerPosition[2] = 0;
         playerPosition[3] = 1;
         rotation_angle = 0;
-        bullets = new float[200][6];
-        isBulletFired = new boolean[200];
+        bullets = new float[500][6];
+        isBulletFired = new boolean[500];
         newPositioner[0] = false;
         newPositioner[1] = false;
         newPositioner[2] = false;
+    }
+
+    private void levelOne(GL gl, float[] hitBoxChecker) {
+        gl.glColor3f(1.0f, 0f, 0f);
+        level1Text(gl);
+        hitBoxChecker = DrawMovingObject(0, 0, 5, 1, gl);
+        onCollisionReset(hitBoxChecker);
+    }
+
+    private void levelTwo(GL gl, float[] hitBoxChecker) {
+        gl.glColor3f(1.0f, 0f, 0f);
+        // draw moving objects
+        hitBoxChecker = DrawMovingObject(-5, 0, 2, 2, gl);
+        onCollisionReset(hitBoxChecker);
+        hitBoxChecker = DrawMovingObject(0, 0, 5, 3, gl);
+        onCollisionReset(hitBoxChecker);
+        hitBoxChecker = DrawMovingObject(+5, 0, 6, 5, gl);
+        onCollisionReset(hitBoxChecker);
+        hitBoxChecker = DrawMovingObject(9, 0, 2, 2, gl);
+        onCollisionReset(hitBoxChecker);
+        // draw enemy
+        hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
+        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyKiller(hitBoxChecker, 0);
+    }
+
+    private void levelThree(GL gl, float[] hitBoxChecker) {
+        GLUT glut = new GLUT();
+        gl.glColor3f(1, 0, 0);
+        gl.glRasterPos3f(-13f, 8, 0);
+        String string = "GET READY TO DODGE";
+        glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, string);
+        for (int i = 0; i < 30; i++) {
+            hitBoxChecker = DrawBullet(2, gl, i);
+            onCollisionResetBullet(hitBoxChecker);
+        }
+    }
+
+    private void levelFour(GL gl, float[] hitBoxChecker) {
+        // draw moving objects
+        hitBoxChecker = DrawMovingObject(-5, 0, 5, 2, gl);
+        onCollisionReset(hitBoxChecker);
+        // draw moving objects
+        hitBoxChecker = DrawMovingObject(10, 0, 10, 2, gl);
+        onCollisionReset(hitBoxChecker);
+        hitBoxChecker = DrawEnemy(-5, -8, 0, 2, enemyCPosition, gl);
+        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyKiller(hitBoxChecker, 0);
+        hitBoxChecker = DrawEnemy(1, -3, 1, 1, enemyCPosition2, gl);
+        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        enemyKiller(hitBoxChecker, 1);
+        hitBoxChecker = DrawEnemy(1, 3, 2, 1, enemyCPosition3, gl);
+        enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+        enemyKiller(hitBoxChecker, 2);
+    }
+
+    private void levelFive(GL gl, float[] hitBoxChecker) {
+        for (int i = 0; i < 40; i++) {
+            hitBoxChecker = DrawBullet(2, gl, i);
+            onCollisionResetBullet(hitBoxChecker);
+        }
+        hitBoxChecker = DrawEnemy(-5, -8, 0, 1, enemyCPosition, gl);
+        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyKiller(hitBoxChecker, 0);
+
+        hitBoxChecker = DrawEnemy(0, 8, 1, 1, enemyCPosition2, gl);
+        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        enemyKiller(hitBoxChecker, 1);
+    }
+
+    private void levelSix(GL gl, float[] hitBoxChecker) {
+        hitBoxChecker = DrawEnemy(-5, -7, 0, 1, enemyCPosition, gl);
+        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        enemyKiller(hitBoxChecker, 0);
+        hitBoxChecker = DrawEnemy(0, 4, 1, 2, enemyCPosition2, gl);
+        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        enemyKiller(hitBoxChecker, 1);
+        hitBoxChecker = DrawEnemy(10, -2, 2, 2, enemyCPosition3, gl);
+        enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+        enemyKiller(hitBoxChecker, 2);
+    }
+
+    private void levelSeven(GL gl, float[] hitBoxChecker) {
+        // this is a joke of a level, you don't die
+        // aka no hit box calling in this level
+        hitBoxChecker = DrawMovingObject(-5, 0, 10, 2, gl);
+        hitBoxChecker = DrawMovingObject(5, 0, 8, 2, gl);
+        hitBoxChecker = DrawMovingObject(0, 0, 5, 4, gl);
+        hitBoxChecker = DrawMovingObject(10, 2, 5, 2, gl);
+        hitBoxChecker = DrawMovingObject(15, 0, 7, 2, gl);
+        for (int i = 0; i < 500; i++) {
+            hitBoxChecker = DrawBullet(2, gl, i);
+        }
+        hitBoxChecker = DrawEnemy(15, 0, 0, 3, enemyCPosition, gl);
+        enemyDetector(0, hitBoxChecker, gl, enemyCPosition);
+        hitBoxChecker = DrawEnemy(-5, -8, 1, 3, enemyCPosition2, gl);
+        enemyDetector(1, hitBoxChecker, gl, enemyCPosition2);
+        hitBoxChecker = DrawEnemy(5, 3, 2, 3, enemyCPosition3, gl);
+        enemyDetector(2, hitBoxChecker, gl, enemyCPosition3);
+    }
+
+    private void levelEight(GL gl, float[] hitBoxChecker) {
+        FinishScreen(gl);
+        finishedGame = true;
     }
 
     // this one doesn't have a hit box, i don't know why its not working........    
@@ -1241,22 +1339,6 @@ public class TempProject implements GLEventListener, KeyListener {
         gl.glPopMatrix();
         objectRotation += 0.5f;
         return hitBox;
-    }
-
-    // not used, aka its useless
-    private void setCamera(GL gl, GLU glu) {
-        //System.out.println(x + " " + y + " " + width + " " + height);
-        glu.gluLookAt(0, rotate_UD, rotate_LR, 0, 0, 0, 0, 0, 0);
-        if (height <= 0) { // avoid a divide by zero error!
-            height = 1;
-        }
-        final float h = (float) width / (float) height;
-        gl.glViewport(0, 0, width, height);
-        gl.glMatrixMode(GL.GL_PROJECTION);
-        gl.glLoadIdentity();
-        glu.gluPerspective(45.0f, h, 1.0, 50.0);
-        gl.glMatrixMode(GL.GL_MODELVIEW);
-        gl.glLoadIdentity();
     }
 
 }
