@@ -16,6 +16,7 @@ import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -27,7 +28,7 @@ public class TempProject implements GLEventListener, KeyListener {
     boolean tutorial = true;
     boolean finishedGame = false;
     boolean gravityToggle = true;
-    boolean stop = false;
+    boolean enemyOff = false;
     boolean isRunning = false;
     int frames = 0; // control stars speed
     int yMover = 2;
@@ -124,7 +125,7 @@ public class TempProject implements GLEventListener, KeyListener {
         startUp(gl);
         //this will be used as the refrence to all  hit boxes
         float[] hitBoxChecker = new float[6];
-        if (stop) {
+        if (enemyOff) {
             return;
         }
         // reset levels if you go out of range
@@ -163,7 +164,7 @@ public class TempProject implements GLEventListener, KeyListener {
                 levelSeven(gl, hitBoxChecker);
                 break;
             case 8:
-                levelEight(gl);
+                levelEight(gl, hitBoxChecker);
                 break;
             default:
                 // how did you get here ?
@@ -193,7 +194,7 @@ public class TempProject implements GLEventListener, KeyListener {
         // get the inputs from the user
         switch (ke.getKeyCode()) {
             case KeyEvent.VK_SPACE:
-                stop = !stop;
+                enemyOff = !enemyOff;
                 break;
             case KeyEvent.VK_C:
                 isRunning = !isRunning;
@@ -1055,25 +1056,10 @@ public class TempProject implements GLEventListener, KeyListener {
         gl.glLoadIdentity();
         // Clear the drawing area
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);
-        // Prepare light parameters, for the finish object
-        float[] lightColorSpecular = {1, 1f, 0f, 1f};
-        // Set light parameters.
-        gl.glLightfv(GL.GL_LIGHT1, GL.GL_SPECULAR, lightColorSpecular, 0);
-        // Enable lighting in GL.
-        gl.glEnable(GL.GL_LIGHT1);
-        gl.glEnable(GL.GL_LIGHTING);
-        // Set material properties.
-        float[] rgba = {1f, 1f, 0f};
-        gl.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, rgba, 0);
-        gl.glMaterialf(GL.GL_FRONT, GL.GL_SHININESS, 100);
+
         // Move the "drawing cursor" around
         gl.glTranslatef(cam_LR, cam_UD, -29 + cam_zoom_IO);
         float[] hitBoxChecker;
-        hitBoxChecker = DrawFinishObject(13, -3, gl);
-        onCollisionNext(hitBoxChecker);
-        // disable the light that shines on the finish object.
-        gl.glDisable(GL.GL_LIGHT1);
-        gl.glDisable(GL.GL_LIGHTING);
         // this is a counter for the fps, you reset the stars position after 10frames
         frames++;
         if (frames % 10 == 0) {
@@ -1098,21 +1084,39 @@ public class TempProject implements GLEventListener, KeyListener {
         onCollisionReset(hitBoxChecker);
         hitBoxChecker = DrawBorderB(gl);
         onCollisionReset(hitBoxChecker);
-        // draw the spikes
-        gl.glTranslatef(-23, -12, 0);
-        gl.glScaled(7.66666, 1, 1);
-        int i = 0;
-        while (true) {
-            drawSpikes(gl);
-            gl.glTranslatef(1, 0, 0);
-            i++;
-            if (i > 5) {
-                break;
+        // draw the spikes + finish object if not final level
+        if (level != 8) {
+            // Prepare light parameters, for the finish object
+            float[] lightColorSpecular = {1, 1f, 0f, 1f};
+            // Set light parameters.
+            gl.glLightfv(GL.GL_LIGHT1, GL.GL_SPECULAR, lightColorSpecular, 0);
+            // Enable lighting in GL.
+            gl.glEnable(GL.GL_LIGHT1);
+            gl.glEnable(GL.GL_LIGHTING);
+            // Set material properties.
+            float[] rgba = {1f, 1f, 0f};
+            gl.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, rgba, 0);
+            gl.glMaterialf(GL.GL_FRONT, GL.GL_SHININESS, 100);
+            hitBoxChecker = DrawFinishObject(13, -3, gl);
+            onCollisionNext(hitBoxChecker);
+            // disable the light that shines on the finish object.
+            gl.glDisable(GL.GL_LIGHT1);
+            gl.glDisable(GL.GL_LIGHTING);
+            gl.glTranslatef(-23, -12, 0);
+            gl.glScaled(7.66666, 1, 1);
+            int i = 0;
+            while (true) {
+                drawSpikes(gl);
+                gl.glTranslatef(1, 0, 0);
+                i++;
+                if (i > 5) {
+                    break;
+                }
             }
+            // ignore the trasnlation that happened above
+            gl.glLoadIdentity();
+            gl.glTranslatef(cam_LR, cam_UD, -29 + cam_zoom_IO);
         }
-        // ignore the trasnlation that happened above
-        gl.glLoadIdentity();
-        gl.glTranslatef(cam_LR, cam_UD, -29 + cam_zoom_IO);
         // Draw player + reamaining lives
         DrawPlayer(gl);
         showLives(gl);
@@ -1468,9 +1472,15 @@ public class TempProject implements GLEventListener, KeyListener {
      * @param gl
      * @param hitBoxChecker
      */
-    private void levelEight(GL gl) {
+    private void levelEight(GL gl, float[] hitBoxChecker) {
         FinishScreen(gl);
         finishedGame = true;
+        hitBoxChecker = drawEarth(gl);
+        onCollisionClose(hitBoxChecker);
+        // final note, in the final level the hit box of the bottom border is kinda
+        // scuffed, but If I want to change it here I would have to implement
+        // a new method just for level 8, and I think that is not worth it.
+
     }
 
     /**
@@ -1482,6 +1492,78 @@ public class TempProject implements GLEventListener, KeyListener {
      *
      * @param gl
      * @return
+     */
+    /**
+     * this method is used to draw the earth at the last level
+     *
+     * @param gl
+     * @return the hitBox of the earth, not the hit box in this case is
+     * literally a box, making a circle hit box is too complicated LOL
+     */
+    private float[] drawEarth(GL gl) {
+        gl.glEnable(GL.GL_TEXTURE_2D);
+        // draw the earth
+        Texture tex;
+        try {
+            //load texture
+            tex = TextureIO.newTexture(new File("earth5.png"), true);
+            tex.bind();
+        } catch (IOException ex) {
+            System.err.println(ex);
+        }
+        float hitBox[] = new float[6];
+        hitBox[0] = 18;
+        hitBox[1] = 25;
+        hitBox[2] = -10;
+        hitBox[3] = 25 * 1 - 0.5f;
+        hitBox[4] = 0;
+        hitBox[5] = 1;
+        System.out.println(Arrays.toString(hitBox));
+        gl.glPushMatrix();
+        gl.glScaled(6, 25, 1);
+        gl.glTranslated(3f, -0.5f, 1);
+        gl.glBegin(GL.GL_QUADS);
+        gl.glColor3f(1, 1, 1);
+        gl.glTexCoord2d(1, 1);
+        gl.glVertex2d(0, 0);
+        gl.glTexCoord2d(0, 1);
+        gl.glVertex2d(1, 0);
+        gl.glTexCoord2d(0, 0);
+        gl.glVertex2d(1, 1);
+        gl.glTexCoord2d(1, 0);
+        gl.glVertex2d(0, 1);
+        gl.glEnd();
+        gl.glPopMatrix();
+        gl.glTranslated(5, 5, -1);
+        gl.glDisable(GL.GL_TEXTURE_2D);
+        return hitBox;
+    }
+
+    /**
+     * This method is used to close the game if the player hits the earth
+     *
+     * @param hitBoxChecker
+     */
+    private void onCollisionClose(float[] hitBoxChecker) {
+        boolean x1 = hitBoxChecker[0] <= playerPosition[0] && playerPosition[0] <= hitBoxChecker[1];
+        boolean x2 = hitBoxChecker[0] <= playerPosition[1] && playerPosition[1] <= hitBoxChecker[1];
+        boolean y1 = hitBoxChecker[2] <= playerPosition[2] && playerPosition[2] <= hitBoxChecker[3];
+        boolean y2 = hitBoxChecker[2] <= playerPosition[3] && playerPosition[3] <= hitBoxChecker[3];
+        boolean z1 = hitBoxChecker[4] <= playerPosition[4] && playerPosition[4] <= hitBoxChecker[4];
+        boolean z2 = hitBoxChecker[5] <= playerPosition[5] && playerPosition[5] <= hitBoxChecker[5];
+        if ((x1 || x2) && (y1 || y2) && (z1 || z2)) // check for x1
+        {
+            System.exit(0);
+        }
+    }
+
+    /**
+     * This method was supposed to be for rotating objects, but I could get the
+     * correct hit box, also this is probably the worst version of all the
+     * methods we tried I just lost the rest so I kept this one.
+     *
+     * @param gl
+     * @return the hitHox of the rotating object, supposedly.
      */
     private float[] DrawRotatingObject(GL gl) {
         float[] hitBox = new float[6];
