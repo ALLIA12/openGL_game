@@ -16,14 +16,13 @@ import com.sun.opengl.util.texture.Texture;
 import com.sun.opengl.util.texture.TextureIO;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class TempProject implements GLEventListener, KeyListener {
+public class Astro_Man implements GLEventListener, KeyListener {
 
     boolean tutorial = true;
     boolean finishedGame = false;
@@ -58,7 +57,7 @@ public class TempProject implements GLEventListener, KeyListener {
 
         Frame frame = new Frame("Astro man");
         GLCanvas canvas = new GLCanvas();
-        TempProject obj = new TempProject();
+        Astro_Man obj = new Astro_Man();
         canvas.addGLEventListener(obj);
         canvas.addKeyListener(obj);
         frame.add(canvas);
@@ -1518,7 +1517,6 @@ public class TempProject implements GLEventListener, KeyListener {
         hitBox[3] = 25 * 1 - 0.5f;
         hitBox[4] = 0;
         hitBox[5] = 1;
-        System.out.println(Arrays.toString(hitBox));
         gl.glPushMatrix();
         gl.glScaled(6, 25, 1);
         gl.glTranslated(3f, -0.5f, 1);
